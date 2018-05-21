@@ -6,13 +6,13 @@ Image based on [Alpine Linux](https://hub.docker.com/_/alpine/).
 You can easily build you docker image with some tunnings. Clone this repository and follow the instructions below.
 
 ```
-docker build -t php:7.1-alpine-fpm ./7.1/alpine/fpm/
+docker build -t php-nginx:7.1-alpine-fpm ./7.1/alpine/fpm/
 ```
 
 ### Run
 
 ```
-docker run --rm --name app -p 80:80 php:7.1-alpine-fpm
+docker run --rm --name app -p 80:80 php-nginx:7.1-alpine-fpm
 ```
 
 And open localhost - [link](http://localhost/).

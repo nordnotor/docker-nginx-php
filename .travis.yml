@@ -10,7 +10,7 @@ install:
 before_script:
   - env | sort
   - cd "$VERSION/$LINUX/$MODE"
-  - image="php:${VERSION}-${LINUX}-${MODE}"
+  - image="php-nginx:${VERSION}-${LINUX}-${MODE}"
 
 script:
   - travis_retry docker build -t "$image" .
