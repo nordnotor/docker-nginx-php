@@ -137,7 +137,4 @@ EXPOSE 80 443
 
 ENTRYPOINT ["/usr/bin/command/entrypoint.sh"]
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=50 \
-        CMD curl --fail -s http://${NGINX_HOST}:${NGINX_PORT} || exit 1
-
 CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/conf.d/supervisord.conf"]
