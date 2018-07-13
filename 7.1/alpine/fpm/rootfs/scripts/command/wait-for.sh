@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Use this script to test if a given TCP host/port are available
 #
@@ -65,9 +65,9 @@ USAGE
 wait_for()
 {
     if [[ $TIMEOUT -gt 0 ]]; then
-        echoerr "$cmdname: waiting $TIMEOUT seconds for $HOST:$PORT"
+        echoerr " => $cmdname: waiting $TIMEOUT seconds for $HOST:$PORT"
     else
-        echoerr "$cmdname: waiting for $HOST:$PORT without a timeout"
+        echoerr " => $cmdname: waiting for $HOST:$PORT without a timeout"
     fi
     start_ts=$(date +%s)
     while :
@@ -81,7 +81,7 @@ wait_for()
         fi
         if [[ $result -eq 0 ]]; then
             end_ts=$(date +%s)
-            echoerr "$cmdname: $HOST:$PORT is available after $((end_ts - start_ts)) seconds"
+            echoerr " => $cmdname: $HOST:$PORT is available after $((end_ts - start_ts)) seconds"
             break
         fi
         sleep 1
@@ -102,7 +102,7 @@ wait_for_wrapper()
     wait $PID
     RESULT=$?
     if [[ $RESULT -ne 0 ]]; then
-        echoerr "$cmdname: timeout occurred after waiting $TIMEOUT seconds for $HOST:$PORT"
+        echoerr " => $cmdname: timeout occurred after waiting $TIMEOUT seconds for $HOST:$PORT"
     fi
     return $RESULT
 }
@@ -165,14 +165,14 @@ do
         usage
         ;;
         *)
-        echoerr "Unknown argument: $1"
+        echoerr " => Unknown argument: $1"
         usage
         ;;
     esac
 done
 
 if [[ "$HOST" == "" || "$PORT" == "" ]]; then
-    echoerr "Error: you need to provide a host and port to test."
+    echoerr " => error: you need to provide a host and port to test."
     usage
 fi
 
@@ -208,7 +208,7 @@ fi
 
 if [[ $CLI != "" ]]; then
     if [[ $RESULT -ne 0 && $STRICT -eq 1 ]]; then
-        echoerr "$cmdname: strict mode, refusing to execute subprocess"
+        echoerr " => $cmdname: strict mode, refusing to execute subprocess"
         exit $RESULT
     fi
     exec "${CLI[@]}"

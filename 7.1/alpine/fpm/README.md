@@ -17,32 +17,34 @@ docker run --rm --name app -p 80:80 php-nginx:7.1-alpine-fpm
 
 And open localhost - [link](http://localhost/).
 
-##### Arguments
-    PUID - user id
-    PGID - user group id
-
 ##### Directories
-    /var/www/html - web content
-    /etc/nginx/ - nginx configuration folder
-    /usr/local/etc/php/ - php configuration folder
-    /var/spool/cron/crontabs/ - crontabs configuration folder
+    /var/www/html - for web content
+    /etc/nginx - for nginx configuration
+    /usr/local/etc/php - for php configuration
+    /var/spool/cron/crontabs - for crontabs configuration
+    /etc/supervisor.programs -  for additional conf files for supervisor
 
 ##### Environment variables
-    Name                        Default
-    MODE                        "prod"
-    PHP_DATE_TIME_ZONE          "Europe/Kiev"
+    Name                        Default                       Description
+    # Container settings
+    PUID                        1000
+    PGID                        1000
+    MODE                        "prod"                        prod|dev (xdebug is on)
+    WAIT_FOR                    ""                            Waiting for other services. See: https://docs.docker.com/compose/startup-order/
+    SECRET_ENV                  ""                            
+    # Php settings
+    PHP_FILE_UPLOADS            "on"
     PHP_MEMORY_LIMIT            "2G"
     PHP_POST_MAX_SIZE           "50M"
+    PHP_UPLOAD_MAX_FILESIZE     "50M"
     PHP_MAX_INPUT_TIME          60
     PHP_MAX_EXECUTION_TIME      300
-    PHP_UPLOAD_MAX_FILESIZE     "50M"
-    PHP_FILE_UPLOADS            "on"
+    PHP_DATE_TIME_ZONE          "Europe/Kiev"
     PHP_SESSION_SAVE_HANDLER    "files"
     PHP_SESSION_SAVE_PATH       ""
     PHP_SENDMAIL_PATH           ""
-    PHP_FPM_LISTEN              "/var/run/php.sock"
-    NGINX_HOST                  "localhost"
-    NGINX_PORT                  "80"
+    # Composer settings
+    GITHAB_ACCESS_KEY           ""
     
 ##### Logging
 
