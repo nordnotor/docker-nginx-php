@@ -130,6 +130,8 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
  && composer --ansi --version --no-interaction \
  && rm -rf /tmp/* /tmp/.htaccess
 
+RUN addgroup composer && usermod -aG composer,www-data www-data && usermod -aG www-data,nginx nginx
+
 # Copy files
 COPY ${ROOTFS_DIR}/scripts/command /usr/bin/command
 COPY ${ROOTFS_DIR}/scripts/entrypoint.sh /usr/bin/entrypoint
@@ -161,6 +163,8 @@ RUN ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 RUN ln -sf /proc/1/fd/1 /var/log/nginx/access.log
 
 # Permission
+RUN chmod -R 770 $COMPOSER_HOME
+RUN chown -R root:composer $COMPOSER_HOME
 RUN chmod -R 600 /var/spool/cron/crontabs/
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R +x /usr/bin/command /usr/bin/crontab /usr/bin/entrypoint

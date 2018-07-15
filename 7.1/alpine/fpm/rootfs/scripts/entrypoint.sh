@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+if [ ${MODE} = "dev" ]; then
+    set -x
+fi
+
 function runScripts(){
 
     local dir=$1
@@ -17,7 +21,7 @@ function runScripts(){
 }
 
 # Change user PUID and PGID
-usermod -u ${PUID} -s /bin/sh www-data && groupmod -g ${PGID} www-data 1> /dev/null
+usermod -u ${PUID} -s /bin/sh www-data 2> /dev/null && groupmod -g ${PGID} www-data 2> /dev/null || true
 
 # Access
 chown -R root:root ${SCRIPTS_ROOT_DIR} && chmod -R +x ${SCRIPTS_ROOT_DIR}
