@@ -46,7 +46,7 @@ ENV SCRIPTS_CORE_RUNTIME_DIR="$SCRIPTS_ROOT_DIR/core-runtime" \
 RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories
 
 # Install packages
-RUN apk add --update --no-cache \
+RUN apk update && apk upgrade && apk add --update --no-cache \
     icu-dev \
     libxslt-dev \
     libpng-dev \
@@ -87,6 +87,7 @@ RUN apk add --update --no-cache \
 	supervisor \
 	shadow \
     nginx \
+    findutils \
     ssmtp
 
 # Install gd
@@ -130,7 +131,8 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
  && composer --ansi --version --no-interaction \
  && rm -rf /tmp/* /tmp/.htaccess
 
-RUN addgroup composer && usermod -aG composer,www-data www-data && usermod -aG www-data,nginx nginx
+RUN usermod -u ${PUID} -s /bin/sh www-data && groupmod -g ${PGID} www-data
+RUN addgroup composer && usermod -aG composer,www-data www-data && usermod -aG www-data,nginx  nginx
 
 # Copy files
 COPY ${ROOTFS_DIR}/scripts/command /usr/bin/command
@@ -141,13 +143,16 @@ COPY ${ROOTFS_DIR}/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ${ROOTFS_DIR}/nginx/sites-enabled /etc/nginx/conf.d
 
 COPY ${ROOTFS_DIR}/cron-jobs /var/spool/cron/crontabs
-COPY ${ROOTFS_DIR}/supervisord.conf /etc/supervisord.conf
+
+COPY ${ROOTFS_DIR}/supervisor/programs /etc/supervisor.programs
+COPY ${ROOTFS_DIR}/supervisor/supervisord.conf /etc/supervisord.conf
 
 COPY ${ROOTFS_DIR}/php/php-fpm.d /usr/local/etc/php-fpm.d
 COPY ${ROOTFS_DIR}/php/php.ini /usr/local/etc/php/php.ini
 COPY ${ROOTFS_DIR}/php/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 COPY ${ROOTFS_DIR}/html /var/www/html
+
 
 # Create dirs
 RUN mkdir -p $SCRIPTS_CORE_RUNTIME_DIR $SCRIPTS_AFTER_WAIT_RUNTIME_DIR $SCRIPTS_BEFORE_WAIT_RUNTIME_DIR

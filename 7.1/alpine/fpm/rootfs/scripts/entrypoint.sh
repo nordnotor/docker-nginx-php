@@ -2,8 +2,12 @@
 
 set -euo pipefail
 
-if [ ${MODE} = "dev" ]; then
+if [ ${MODE} == "dev" ]; then
     set -x
+fi
+
+if [ ! `id -un` == "root" ]; then
+    echo >&2 " => error: Please run container only by root user!" && exit 1;
 fi
 
 function runScripts(){
@@ -20,8 +24,17 @@ function runScripts(){
     done
 }
 
-# Change user PUID and PGID
-usermod -u ${PUID} -s /bin/sh www-data 2> /dev/null && groupmod -g ${PGID} www-data 2> /dev/null || true
+# Change user UID/GID and UID/GID in files.
+
+OGID=`id -g www-data`
+if [ ${PGID} -ne ${OGID} ]; then
+    groupmod -g ${PGID} www-data | (find / -group ${OGID} -print 2> /dev/null; exit 0) | xargs chown -R :${PGID} || true
+fi
+
+OUID=`id -u www-data`
+if [ ${PUID} -ne ${OUID} ]; then
+     usermod -u ${PUID} www-data | (find / -user ${OUID} -print 2> /dev/null; exit 0) | xargs chown -R ${PGID} || true
+fi
 
 # Access
 chown -R root:root ${SCRIPTS_ROOT_DIR} && chmod -R +x ${SCRIPTS_ROOT_DIR}
