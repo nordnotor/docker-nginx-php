@@ -46,49 +46,50 @@ ENV SCRIPTS_CORE_RUNTIME_DIR="$SCRIPTS_ROOT_DIR/core-runtime" \
 RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories
 
 # Install packages
-RUN apk update && apk upgrade && apk add --update --no-cache \
-    icu-dev \
-    libxslt-dev \
-    libpng-dev \
+RUN apk add --update --no-cache \
+    libjpeg-turbo-dev \
+    ca-certificates \
+    imagemagick-dev \
     libmcrypt-dev \
     libjpeg-turbo \
-    libjpeg-turbo-dev \
-    freetype \
-    freetype-dev \
-    imagemagick-dev \
-    imagemagick \
-    libtool \
-    git \
-    subversion \
-    mercurial \
-    tini \
-    patch \
-    mc \
-    curl \
-    unzip \
     mysql-client \
-    ca-certificates \
-    openssl \
-    openssh \
-    pcre-dev \
+    freetype-dev \
+    libxslt-dev \
+    imagemagick \
+	openssl-dev \
+    libpng-dev \
+    subversion \
+	supervisor \
+    mercurial \
+	findutils \
+	libc-dev \
+    freetype \
     autoconf \
+    pcre-dev \
+	curl-dev \
+	pkgconf \
+    openssh \
+    openssl \
+    icu-dev \
+    libtool \
+	shadow \
+	dcron \
+	rsync \
+    nginx \
+    unzip \
+    patch \
+    ssmtp \
+    tini \
+    curl \
 	file \
+	make \
+	re2c \
+	wget \
+    git \
 	g++ \
 	gcc \
-	libc-dev \
-	make \
-	pkgconf \
-	re2c \
-	curl-dev \
-	openssl-dev \
-	dcron \
-	wget \
-	rsync \
-	supervisor \
-	shadow \
-    nginx \
-    findutils \
-    ssmtp
+    tar \
+    mc
 
 # Install gd
 RUN docker-php-ext-configure gd \
