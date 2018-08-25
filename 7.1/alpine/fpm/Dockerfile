@@ -1,4 +1,4 @@
-FROM php:7.1-fpm-alpine
+FROM php:7.1-fpm-alpine3.7
 
 MAINTAINER Vlad Tuznichenko <vlad.tuznichenko@gmail.com>
 
@@ -132,8 +132,13 @@ RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/compos
  && composer --ansi --version --no-interaction \
  && rm -rf /tmp/* /tmp/.htaccess
 
-RUN usermod -u ${PUID} -s /bin/sh www-data && groupmod -g ${PGID} www-data
-RUN addgroup composer && usermod -aG composer,www-data www-data && usermod -aG www-data,nginx  nginx
+# Add user and groups
+RUN addgroup -g 1001 composer && usermod --append --groups www-data,nginx nginx
+RUN usermod --uid ${PUID} --shell /bin/sh --append --groups composer,nginx,www-data www-data && groupmod --gid ${PGID} www-data
+
+# Add stderr|stdout for nginx logs
+RUN ln -sf /proc/1/fd/2 /var/log/nginx/error.log
+RUN ln -sf /proc/1/fd/1 /var/log/nginx/access.log
 
 # Copy files
 COPY ${ROOTFS_DIR}/scripts/command /usr/bin/command
@@ -154,7 +159,6 @@ COPY ${ROOTFS_DIR}/php/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docke
 
 COPY ${ROOTFS_DIR}/html /var/www/html
 
-
 # Create dirs
 RUN mkdir -p $SCRIPTS_CORE_RUNTIME_DIR $SCRIPTS_AFTER_WAIT_RUNTIME_DIR $SCRIPTS_BEFORE_WAIT_RUNTIME_DIR
 RUN mkdir -p /run/nginx /var/log/supervisor/ /etc/cron/periodic /etc/cron/crontabs /etc/cron/cronstamps /etc/supervisor.programs /etc/composer
@@ -163,10 +167,6 @@ RUN mkdir -p /run/nginx /var/log/supervisor/ /etc/cron/periodic /etc/cron/cronta
 RUN ln -s /usr/bin/command/phpmod.sh /usr/bin/phpmod
 RUN ln -s /usr/bin/command/wait-for.sh /usr/bin/wait-for
 RUN ln -s /usr/bin/command/secret-env.sh /usr/bin/secret-env
-
-# Add stderr|stdout for nginx logs
-RUN ln -sf /proc/1/fd/2 /var/log/nginx/error.log
-RUN ln -sf /proc/1/fd/1 /var/log/nginx/access.log
 
 # Permission
 RUN chmod -R 770 $COMPOSER_HOME

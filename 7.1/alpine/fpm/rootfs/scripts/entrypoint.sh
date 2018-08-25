@@ -7,19 +7,17 @@ if [ ${MODE} == "dev" ]; then
 fi
 
 if [ ! `id -un` == "root" ]; then
-    echo >&2 " => error: Please run container only by root user!" && exit 1;
+    echo >&2 " => error: Please run container only by root user!" && retutn 1;
 fi
 
 function runScripts(){
+    local _dir=$1
 
-    local dir=$1
-
-    if [ ! -d ${dir} ]; then
-       echo >&2 " => error: directory ${dir} does not exists.";
-       exit 1;
+    if [ ! -d ${_dir} ]; then
+       echo >&2 " => error: directory ${_dir} does not exists."; retutn 1;
     fi
 
-    for script in `find ${dir} -type f -name "*.sh" | sort`; do :
+    for script in `find ${_dir} -type f -name "*.sh" | sort`; do :
        . ${script}
     done
 }

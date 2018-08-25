@@ -1,14 +1,13 @@
 #!/bin/bash
 
-usage()
-{
+usage() {
     cat <<-END
     Get secret from file.
 
     Usage:
       secret_env ENV_NAME
 
-      Will allow for "$ENV_NAME_FILE" to fill in the value of "$ENV_NAME" from a file, especially for Docker's secrets feature.
+      Will allow for "ENV_NAME_FILE" to fill in the value of "ENV_NAME" from a file, especially for Docker`s secrets feature.
 
 END
 }
@@ -32,9 +31,8 @@ file_env() {
 }
 
 main() {
-
-    case $1 in
-        --help) usage; ;;
+    case "$1" in
+        -h | --help) usage; ;;
         *) file_env $* ;;
     esac
 }

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-usage()
-{
+usage() {
     cat <<-END
     Turns on or off php extension.
 
@@ -11,45 +10,40 @@ usage()
 END
 }
 
-switch(){
+switch() {
 
-    local command=$1
-    local extension=$2
-    local phpConfFolder=`php --ini | grep "Scan for additional .ini files in:" | cut -c 35- | xargs`
+    local _command=$1 _extension=$2 _phpConfFolder=`php --ini | grep "Scan for additional .ini files in:" | cut -c 35- | xargs`
 
-    if [ ! -f ${phpConfFolder}/docker-php-ext-${2}.ini ]; then
-        echo  >&2 " => error: $2 extension does not installed." && exit 1;
+    if [ ! -f ${_phpConfFolder}/docker-php-ext-${_extension}.ini ]; then
+        echo  >&2 " => error: ${_extension} extension does not installed." && exit 1;
     fi
 
-    local isExtension=`grep -c "^;zend_extension=$2.so" ${phpConfFolder}/docker-php-ext-${2}.ini`
+    local isExtension=`grep -c "^;zend_extension=${_extension}.so" ${_phpConfFolder}/docker-php-ext-${_extension}.ini`
 
     if [ ! ${isExtension} -ge 1 ] && [ $1 == 'enable' ]; then
-        echo " => $2 already $1.";
+        echo " => ${_extension} already ${_command}.";
         exit 0;
     fi
 
     if [ ${isExtension} -ge 1 ]  && [ $1 == 'disable' ]; then
-        echo " => $2 already $1.";
+        echo " => ${_extension} already ${_command} .";
         exit 0;
     fi
 
-    case $1 in
-        --help)  usage; ;;
-        enable)  sed -i "s/;zend_extension=$2.so/zend_extension=$2.so/" ${phpConfFolder}/docker-php-ext-${2}.ini ;;
-        disable) sed -i "s/zend_extension=$2.so/;zend_extension=$2.so/" ${phpConfFolder}/docker-php-ext-${2}.ini ;;
+    case ${_command} in
+        enable)  sed -i "s/;zend_extension=${_extension}.so/zend_extension=${_extension}.so/" ${_phpConfFolder}/docker-php-ext-${_extension}.ini ;;
+        disable) sed -i "s/zend_extension=${_extension}.so/;zend_extension=${_extension}.so/" ${_phpConfFolder}/docker-php-ext-${_extension}.ini ;;
     esac
 
     supervisorctl restart php > /dev/null
 
-    echo -e " => php extension $2 has $1.";
+    echo -e " => php extension ${_extension} has ${_command}.";
 }
 
 function main {
-
     case $1 in
-        --help)  usage; ;;
-        enable)  switch $* ;;
-        disable) switch $* ;;
+        -h | --help)  usage; ;;
+        enable | disable)  switch $* ;;
         *) echo >&2 " => error: unknown command: $1"; exit 1 ;;
     esac
 }
