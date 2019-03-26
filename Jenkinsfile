@@ -43,7 +43,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
         for (int i = 0; i < paths.size(); i++) {
 
             println("${paths[i]}")
-            println("${libGit.repoName()}:${paths[i].substring(2).replace('/', '-')}")
+            println("${paths[i].substring(2).replace('/', '-')}")
 
 //            images[i] = docker.build(
 //                    "${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/${libGit.repoName()}:${paths[i].substring(2).replace('/', '-')}",
