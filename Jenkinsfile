@@ -45,16 +45,19 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
             println("${paths[i]}")
             println("${paths[i].substring(2).replace('/', '-')}")
 
-//            images[i] = docker.build(
-//                    "${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/${libGit.repoName()}:${paths[i].substring(2).replace('/', '-')}",
-//                    "--label git.commit=`git rev-parse HEAD` --label build=${env.BUILD_NUMBER} ${paths[i]}"
-//            )
+            images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/${libGit.repoName()}:${paths.getAt(i).substring(2).replace('/', '-')}", " \
+                        --label git.commit=`git rev-parse HEAD` \
+                        --label build=${env.BUILD_NUMBER} \
+                        --pull --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
+                        --build-arg COMMON_ROOTFS_DIR=./common \
+                        -f ${paths[i]} . \
+                       "))
         }
 
 //        for (int i = 0; i < paths.size(); i++) {
 //            images[i] = docker.build(
 //                "${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/${libGit.repoName()}:${paths[i].substring(2).replace('/', '-')}",
-//                "--label git.commit=`git rev-parse HEAD` --label build=${env.BUILD_NUMBER} ${paths[i]}"
+//                "--label git.commit=`git rev-parse HEAD` --label build=${env.BUILD_NUMBER} ${paths[i]} "-f ${dockerfile} ./dockerfiles""
 //            )
 //        }
     }
