@@ -1,17 +1,20 @@
 # arg
 ARG VERSION='1.0.0'
-ARG BASE_IMAGE='php'
 ARG BASE_IMAGE_TAG='7.3.3-fpm-alpine3.9'
+ARG BASE_IMAGE="php:${BASE_IMAGE_TAG}"
 
-FROM ${BASE_IMAGE}:${BASE_IMAGE_TAG}
-
-LABEL maintainer='Vlad Tuznichenko <vlad.tuznichenko@gmail.com>'
-LABEL description="Image based on ${BASE_IMAGE}:${BASE_IMAGE_TAG}"
-LABEL version=${VERSION}
+FROM ${BASE_IMAGE}
 
 # arg
+ARG VERSION
+ARG BASE_IMAGE
 ARG ROOTFS_DIR='./rootfs'
 ARG COMMON_ROOTFS_DIR='./rootfs'
+
+LABEL image.repo='' \
+      image.version=${VERSION} \
+      image.base="${BASE_IMAGE}:${BASE_IMAGE_TAG}" \
+      image.maintainer='Vlad Tuznichenko <vlad.tuznichenko@gmail.com>'
 
 # container env
 ENV MODE='prod' \
