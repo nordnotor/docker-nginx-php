@@ -15,10 +15,10 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 ]
         )
 
-        withCredentials([file(credentialsId: env.REGISTRY_ACCESS_CRED, variable: 'file')]) {
-            sh("cat ${file} | docker login -u _json_key --password-stdin https://${REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}")
-        }
-        app = docker.image("${env.REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}/${env.SERVICE_NAME}:${env.SERVICE_DEFAULT_TAG}")
+//        withCredentials([file(credentialsId: env.REGISTRY_ACCESS_CRED, variable: 'file')]) {
+//            sh("cat ${file} | docker login -u _json_key --password-stdin https://${REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}")
+//        }
+//        app = docker.image("${env.REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}/${env.SERVICE_NAME}:${env.SERVICE_DEFAULT_TAG}")
     }
 
     step('Checkout') {
