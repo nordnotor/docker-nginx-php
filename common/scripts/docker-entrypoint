@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ ${MODE} == "dev" ]]; then
+    set -x
+fi
+
+function runScripts(){
+    local _dir=$1
+
+    if [[ ! -d ${_dir} ]]; then
+       echo >&2 " => error: directory ${_dir} does not exists."; retutn 1;
+    fi
+
+    for script in `find ${_dir} -type f -name "*.sh" | sort`; do :
+       . ${script}
+    done
+}
+
+# Run core scripts...
+runScripts ${SCRIPTS_BEFORE_SECRET_DIR}
+
+# Replace env with secrets...
+for secret in ${SECRET_ENV}; do
+    . docker-secret-to-env ${secret}
+done
+
+# Run scripts before waiting...
+runScripts ${SCRIPTS_BEFORE_WAIT_RUNTIME_DIR}
+
+# Waiting for services...
+for host in ${WAIT_FOR}; do
+    docker-wait-for -t 0 ${host}
+done
+
+# Run scripts after waiting...
+runScripts ${SCRIPTS_AFTER_WAIT_RUNTIME_DIR}
+
+exec "$@"
