@@ -50,7 +50,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                         --label build=${env.BUILD_NUMBER} \
                         --pull --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
                         --build-arg COMMON_ROOTFS_DIR=./common \
-                        -f ${paths[i]} . \
+                        -f ${paths[i]}/Dockerfile . \
                        "))
         }
 
