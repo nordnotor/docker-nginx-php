@@ -27,11 +27,6 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
                 extensions                       : [[$class: 'CloneOption', noTags: false, shallow: false, depth: 0, reference: '']],
         ])
-
-        gitTagMap = gl.tag()
-        deployTag = "${env.BRANCH_NAME.replace("/", "-").trim()}-${gitVars.GIT_COMMIT.trim()}"
-        version = env.BRANCH_NAME == env.DEFAULT_TAG_BRANCH ? env.SERVICE_DEFAULT_TAG.trim() : env.BRANCH_NAME.trim()
-        tag = gitTagMap.get('tag')?.trim() && gitTagMap.get('count') == 0 ? gitTagMap.get('tag').trim() : gitVars.GIT_COMMIT.trim()
     }
 
     step('Build') {
@@ -39,9 +34,9 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
 
         for (int i = 0; i < paths.size(); i++) {
 
-            sh("find . -name Dockerfile -type f -exec dirname {} \\;")
+            def v = sh(returnStdout: true, "cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"")
 
-            images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}", " \
+            images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}-${v}", " \
                 --label org.label-schema.schema-version=1.0 \
                 --label org.label-schema.vendor='Norse Digital' \
                 --label org.label-schema.name='Core Images' \
@@ -53,8 +48,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 --label org.label-schema.version=`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"` \
                 --build-arg COMMON_ROOTFS_DIR=./common \
                 --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
-                --pull \
-                -f ${paths[i]}/Dockerfile . \
+                --pull -f ${paths[i]}/Dockerfile . \
             "))
         }
     }
