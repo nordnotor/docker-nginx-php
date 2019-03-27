@@ -51,24 +51,13 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 --label org.label-schema.vcs-url='`git config remote.origin.url`' \
                 --label org.label-schema.build-date='`date -u +'%Y-%m-%dT%H:%M:%SZ'`' \
                 --label org.label-schema.version='`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"`' \
-                --pull \
                 --build-arg COMMON_ROOTFS_DIR='./common' \
-                --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
+                --build-arg ROOTFS_DIR='${paths[i]}/rootfs' \
+                --pull \
                 -f ${paths[i]}/Dockerfile . \
             "))
         }
     }
-
-
-
---build-arg ROOTFS_DIR=${paths[i]}/rootfs \
---build-arg COMMON_ROOTFS_DIR=./common \
---build-arg VCS_URL=`git config remote.origin.url` \
---build-arg VCS_REF=`git rev-parse --short HEAD` \
---build-arg BUILD_DATE=`date -u +'%Y-%m-%dT%H:%M:%SZ'` \
---build-arg VERSION=`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"` \
---pull \
--f ${paths[i]}/Dockerfile . \
 
     step('Push', [retries: 2, last: true]) {
         for (int i = 0; i < images.size(); i++) {
