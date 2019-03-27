@@ -34,7 +34,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
 
         for (int i = 0; i < paths.size(); i++) {
 
-            def version = sh(returnStdout: true, script: "cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"").trim()
+            version = sh(returnStdout: true, script: "cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"").trim()
 
             images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}-{version}", " \
                 --label org.label-schema.schema-version=1.0 \
