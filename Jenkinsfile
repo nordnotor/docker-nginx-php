@@ -15,10 +15,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 ]
         )
 
-//        withCredentials([file(credentialsId: env.REGISTRY_ACCESS_CRED, variable: 'file')]) {
-//            sh("cat ${file} | docker login -u _json_key --password-stdin https://${REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}")
-//        }
-//        app = docker.image("${env.REGISTRY_HOST}/${env.REGISTRY_NAMESPACE}/${env.SERVICE_NAME}:${env.SERVICE_DEFAULT_TAG}")
+        dl.login(env.ID_LOGIN_PASS_REGISTRY)
     }
 
     step('Checkout') {
@@ -42,30 +39,19 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
 
         for (int i = 0; i < paths.size(); i++) {
 
-            println("${paths[i]}")
-            println("${paths[i].substring(2).replace('/', '-')}")
-
             images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}", " \
-                        --label git.commit=`git rev-parse HEAD` \
-                        --label build=${env.BUILD_NUMBER} \
-                        --pull --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
-                        --build-arg COMMON_ROOTFS_DIR=./common \
-                        -f ${paths[i]}/Dockerfile . \
-                       "))
+                --label git.commit=`git rev-parse HEAD` \
+                --label build=${env.BUILD_NUMBER} \
+                --pull --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
+                --build-arg COMMON_ROOTFS_DIR=./common \
+                -f ${paths[i]}/Dockerfile . \
+            "))
         }
-
-//        for (int i = 0; i < paths.size(); i++) {
-//            images[i] = docker.build(
-//                "${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/${libGit.repoName()}:${paths[i].substring(2).replace('/', '-')}",
-//                "--label git.commit=`git rev-parse HEAD` --label build=${env.BUILD_NUMBER} ${paths[i]} "-f ${dockerfile} ./dockerfiles""
-//            )
-//        }
     }
 
-//    step('Push', [retries: 2, last: true]) {
-
-//        for (int i = 0; i < images.size(); i++) {
-//            images[i].push()
-//        }
-//    }
+    step('Push', [retries: 2, last: true]) {
+        for (int i = 0; i < images.size(); i++) {
+            images[i].push()
+        }
+    }
 }
