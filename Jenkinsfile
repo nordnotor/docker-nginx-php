@@ -42,18 +42,18 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
             sh("find . -name Dockerfile -type f -exec dirname {} \\;")
 
             images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}", " \
-                --label org.label-schema.schema-version="1.0" \
-                --label org.label-schema.vendor="Norse Digital" \
-                --label org.label-schema.name="Core Images" \
-                --label org.label-schema.description="-"
-                --label org.label-schema.url="-"
-                --label org.label-schema.version=`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"` \
-                --label org.label-schema.vcs-ref=`git rev-parse --short HEAD` \
-                --label org.label-schema.vcs-url=`git config remote.origin.url` \
-                --label org.label-schema.build-date=`date -u +'%Y-%m-%dT%H:%M:%SZ'` \
+                --label org.label-schema.schema-version='1.0' \
+                --label org.label-schema.vendor='Norse Digital' \
+                --label org.label-schema.name='Core Images' \
+                --label org.label-schema.description='-'
+                --label org.label-schema.url='-'
+                --label org.label-schema.vcs-ref='`git rev-parse --short HEAD`' \
+                --label org.label-schema.vcs-url='`git config remote.origin.url`' \
+                --label org.label-schema.build-date='`date -u +'%Y-%m-%dT%H:%M:%SZ'`' \
+                --label org.label-schema.version='`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"`' \
                 --pull
-                --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
-                --build-arg COMMON_ROOTFS_DIR=./common \
+                --build-arg ROOTFS_DIR='${paths[i]}/rootfs' \
+                --build-arg COMMON_ROOTFS_DIR='./common' \
                 -f ${paths[i]}/Dockerfile . \
             "))
         }
