@@ -1,27 +1,9 @@
+FROM php:7.3.3-fpm-alpine3.9
+
 # arg
 ARG VERSION='1.0.0'
-ARG BASE_IMAGE_TAG='7.3.3-fpm-alpine3.9'
-ARG BASE_IMAGE="php:$BASE_IMAGE_TAG"
-
-FROM $BASE_IMAGE
-
-# arg
-ARG VERSION
-ARG VCS_REF
-ARG VCS_URL
-ARG BUILD_DATE
 ARG ROOTFS_DIR='./rootfs'
 ARG COMMON_ROOTFS_DIR='./rootfs'
-
-LABEL org.label-schema.schema-version="1.0" \
-      org.label-schema.version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url=$VCS_URL \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.url="-" \
-      org.label-schema.name="Core Images" \
-      org.label-schema.vendor="Norse Digital" \
-      org.label-schema.description="Image is based on php:7.3.3-fpm-alpine3.9 and include: nginx, php-fpm, cron."
 
 # container env
 ENV MODE='prod' \
