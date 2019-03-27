@@ -6,7 +6,7 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
 
     def paths = [:]
     def images = [:]
-    def gitVars, gitTagMap, tag, version, deployTag
+    def gitVars, version
 
     step('Initialize') {
         properties(
@@ -34,16 +34,16 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
 
         for (int i = 0; i < paths.size(); i++) {
 
-            def v = sh(returnStdout: true, script: "cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"")
+            def version = sh(returnStdout: true, script: "cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"").trim()
 
-            images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}", " \
+            images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}-{version}", " \
                 --label org.label-schema.schema-version=1.0 \
                 --label org.label-schema.vendor='Norse Digital' \
                 --label org.label-schema.name='Core Images' \
                 --label org.label-schema.description='-' \
                 --label org.label-schema.url='-' \
-                --label org.label-schema.version=${v} \
-                --label org.label-schema.vcs-ref=`git rev-parse --short HEAD` \
+                --label org.label-schema.version=${version} \
+                --label org.label-schema.vcs-ref=`git rev-parse HEAD` \
                 --label org.label-schema.vcs-url=`git config remote.origin.url` \
                 --label org.label-schema.build-date=`date -u +'%Y-%m-%dT%H:%M:%SZ'` \
                 --build-arg COMMON_ROOTFS_DIR=./common \
