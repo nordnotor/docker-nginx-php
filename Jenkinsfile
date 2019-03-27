@@ -45,13 +45,13 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
                 --label org.label-schema.schema-version='1.0' \
                 --label org.label-schema.vendor='Norse Digital' \
                 --label org.label-schema.name='Core Images' \
-                --label org.label-schema.description='-'
-                --label org.label-schema.url='-'
+                --label org.label-schema.description='-' \
+                --label org.label-schema.url='-' \
                 --label org.label-schema.vcs-ref='`git rev-parse --short HEAD`' \
                 --label org.label-schema.vcs-url='`git config remote.origin.url`' \
                 --label org.label-schema.build-date='`date -u +'%Y-%m-%dT%H:%M:%SZ'`' \
                 --label org.label-schema.version='`cat ${paths[i]}/Dockerfile | grep -Eow \"^ARG VERSION='.*'\" | grep -Po \"(?<=')[^']+(?=')\"`' \
-                --pull
+                --pull \
                 --build-arg ROOTFS_DIR='${paths[i]}/rootfs' \
                 --build-arg COMMON_ROOTFS_DIR='./common' \
                 -f ${paths[i]}/Dockerfile . \
