@@ -40,10 +40,13 @@ nl('docker', [time: 60, time_unit: 'MINUTES', finally: {
         for (int i = 0; i < paths.size(); i++) {
 
             images.putAt(i, docker.build("${env.ID_LOGIN_PASS_REGISTRY}/${env.REGISTRY_NAMESPACE}/nginx-php:${paths[i].substring(2).replace('/', '-')}", " \
-                --label git.commit=`git rev-parse HEAD` \
-                --label build=${env.BUILD_NUMBER} \
-                --pull --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
+                --build-arg ROOTFS_DIR=${paths[i]}/rootfs \
                 --build-arg COMMON_ROOTFS_DIR=./common \
+                --build-arg VCS_URL=`git config remote.origin.url` \
+                --build-arg VCS_REF=`git rev-parse --short HEAD` \
+                --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+                --build-arg VERSION=`cat ${paths[i]}/Dockerfile | grep -Eow "^ARG VERSION='.*'" | grep -Po "(?<=')[^']+(?=')"` \
+                --pull \
                 -f ${paths[i]}/Dockerfile . \
             "))
         }

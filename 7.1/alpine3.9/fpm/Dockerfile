@@ -1,20 +1,27 @@
 # arg
 ARG VERSION='1.0.0'
 ARG BASE_IMAGE_TAG='7.1.27-fpm-alpine3.9'
-ARG BASE_IMAGE="php:${BASE_IMAGE_TAG}"
+ARG BASE_IMAGE="php:$BASE_IMAGE_TAG"
 
-FROM ${BASE_IMAGE}
+FROM $BASE_IMAGE
 
 # arg
 ARG VERSION
-ARG BASE_IMAGE
+ARG VCS_REF
+ARG VCS_URL
+ARG BUILD_DATE
 ARG ROOTFS_DIR='./rootfs'
 ARG COMMON_ROOTFS_DIR='./rootfs'
 
-LABEL image.repo='' \
-      image.version=${VERSION} \
-      image.base="${BASE_IMAGE}:${BASE_IMAGE_TAG}" \
-      image.maintainer='Vlad Tuznichenko <vlad.tuznichenko@gmail.com>'
+LABEL org.label-schema.schema-version="1.0" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url=$VCS_URL \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.url="-" \
+      org.label-schema.name="Core Images" \
+      org.label-schema.vendor="Norse Digital" \
+      org.label-schema.description="Image is based on php:7.1.27-fpm-alpine3.9 and include: nginx, php-fpm, cron."
 
 # container env
 ENV MODE='prod' \
@@ -27,7 +34,7 @@ ENV MODE='prod' \
 ENV NGINX_HOST=_ \
     NGINX_PORT='80' \
     NGINX_UNCHECK_ROBOTS='1' \
-    NGINX_ROOT=${APP_FOLDER}
+    NGINX_ROOT=$APP_FOLDER
 
 # php env
 ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
@@ -84,7 +91,7 @@ ENV SCRIPTS_BEFORE_SECRET_DIR="$SCRIPTS_ROOT_DIR/pre-runtime" \
     SCRIPTS_BEFORE_WAIT_RUNTIME_DIR="$SCRIPTS_ROOT_DIR/before-wait-for-it"
 
 ENV PHPEXT_DEPS \
-    ${PHPIZE_DEPS} \
+    $PHPIZE_DEPS \
     libjpeg-turbo-dev \
     imagemagick-dev \
     libmcrypt-dev \
@@ -145,7 +152,7 @@ RUN apk add --no-cache \
     acl
 
 # inslall and enable extensions
-RUN apk add --no-cache --virtual .ext-deps ${PHPEXT_DEPS} \
+RUN apk add --no-cache --virtual .ext-deps $PHPEXT_DEPS \
     && docker-php-ext-configure gd \
         --with-gd \
         --with-webp-dir \
@@ -183,27 +190,27 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
         --no-ansi \
         --filename=composer \
         --install-dir=/usr/bin \
-        --version=${COMPOSER_VERSION} \
-    && chmod -R 770 ${COMPOSER_HOME} \
-    && chown -R www-data:composer ${COMPOSER_HOME}
+        --version=$COMPOSER_VERSION \
+    && chmod -R 770 $COMPOSER_HOME \
+    && chown -R www-data:composer $COMPOSER_HOME
 
 # define by defaul php.ini production configuration
-RUN cp "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # copy files
-COPY ${COMMON_ROOTFS_DIR}/scripts/pre-runtime $SCRIPTS_BEFORE_SECRET_DIR
-COPY ${COMMON_ROOTFS_DIR}/scripts/command/docker-* ${COMMON_ROOTFS_DIR}/scripts/docker-entrypoint /usr/bin/
+COPY $COMMON_ROOTFS_DIR/scripts/pre-runtime $SCRIPTS_BEFORE_SECRET_DIR
+COPY $COMMON_ROOTFS_DIR/scripts/command/docker-* $COMMON_ROOTFS_DIR/scripts/docker-entrypoint /usr/bin/
 
-COPY ${COMMON_ROOTFS_DIR}/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ${COMMON_ROOTFS_DIR}/nginx/sites-enabled /etc/nginx/conf.d
+COPY $COMMON_ROOTFS_DIR/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY $COMMON_ROOTFS_DIR/nginx/sites-enabled /etc/nginx/conf.d
 
-COPY ${COMMON_ROOTFS_DIR}/supervisor/programs /etc/supervisor.programs
-COPY ${COMMON_ROOTFS_DIR}/supervisor/supervisord.conf /etc/supervisord.conf
+COPY $COMMON_ROOTFS_DIR/supervisor/programs /etc/supervisor.programs
+COPY $COMMON_ROOTFS_DIR/supervisor/supervisord.conf /etc/supervisord.conf
 
-COPY ${COMMON_ROOTFS_DIR}/php/conf.d/docker-php-ext-xdebug.ini ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini
+COPY $COMMON_ROOTFS_DIR/php/conf.d/docker-php-ext-xdebug.ini $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini
 
 # create index.php
-RUN echo '<?php phpinfo();' > "${APP_FOLDER}/index.php"
+RUN echo '<?php phpinfo();' > "$APP_FOLDER/index.php"
 
 # create dirs
 RUN mkdir -p \
@@ -230,6 +237,7 @@ RUN ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 RUN ln -sf /proc/1/fd/1 /var/log/nginx/access.log
 
 # permissions
+RUN chmod +x /usr/bin/crontab
 RUN chown -R www-data:www-data /var/log/php /usr/include
 
 # remove not needed files.
@@ -240,8 +248,6 @@ EXPOSE 80 443
 
 STOPSIGNAL SIGTERM
 
-WORKDIR ${APP_FOLDER}
+WORKDIR $APP_FOLDER
 
-ENTRYPOINT ["docker-entrypoint"]
-
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["docker-entrypoint", "supervisord", "-c", "/etc/supervisord.conf"]
