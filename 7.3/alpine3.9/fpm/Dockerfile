@@ -26,7 +26,7 @@ ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
     CONF_PHP_INI_POST_MAX_SIZE='50M' \
     CONF_PHP_INI_UPLOAD_MAX_FILESIZE='50M' \
     CONF_PHP_INI_TIMEZONE='Europe/Oslo' \
-    CONF_PHP_INI_ERROR_LOG='/var/log/php/errors.log' \
+    CONF_PHP_INI_ERROR_LOG='/dev/stderr' \
     CONF_PHP_INI_SESSION_SAVE_HANDLER='files' \
     CONF_PHP_INI_REALPATH_CACHE_SIZE='4096K' \
     CONF_PHP_INI_REALPATH_CACHE_TTL=600 \
@@ -39,7 +39,7 @@ ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
     CONF_PHP_INI_SENDMAIL_PATH=''
 
 ENV CONF_PHP_FPM_LOG_LEVEL='notice' \
-    CONF_PHP_FPM_ERROR_LOG='/var/log/php/fpm.errors.log' \
+    CONF_PHP_FPM_ERROR_LOG='/dev/stderr' \
     CONF_PHP_FPM_PROCESS_CONTROL_TIMEOUT='60s' \
     # www pool
     CONF_PHP_FPM_WWW_LISTEN='/var/run/php.sock' \
@@ -49,8 +49,8 @@ ENV CONF_PHP_FPM_LOG_LEVEL='notice' \
     CONF_PHP_FPM_WWW_MAX_SPARE_SERVERS='4' \
     CONF_PHP_FPM_WWW_PROCESS_IDLE_TIMEOUT='10s' \
     CONF_PHP_FPM_WWW_MAX_REQUESTS='500' \
-    CONF_PHP_FPM_WWW_ACCESS_LOG='/var/log/php/pool.access.log' \
-    CONF_PHP_FPM_WWW_SLOW_LOG='/var/log/php/pool.slow.log' \
+    CONF_PHP_FPM_WWW_ACCESS_LOG='/dev/stdout' \
+    CONF_PHP_FPM_WWW_SLOW_LOG='/dev/stdout' \
     CONF_PHP_FPM_WWW_REQUEST_SLOW_LOG_TIMEOUT='5s' \
     CONF_PHP_FPM_WWW_REQUEST_TERMINATE_TIMEOUT='60s' \
     CONF_PHP_FPM_WWW_CLEAR_ENV='no'
@@ -201,27 +201,14 @@ RUN mkdir -p \
     $SCRIPTS_BEFORE_SECRET_DIR  \
     $SCRIPTS_AFTER_WAIT_RUNTIME_DIR  \
     $SCRIPTS_BEFORE_WAIT_RUNTIME_DIR  \
-    /run/nginx \
-    /var/log/php \
     /etc/cron/periodic \
     /etc/cron/crontabs \
     /etc/cron/cronstamps \
-    /var/log/php/xdebug-profiler
-
-# php logs to stderr|stdout
-RUN ln -sf /proc/1/fd/2 /var/log/php/errors.log
-RUN ln -sf /proc/1/fd/2 /var/log/php/fpm.errors.log
-RUN ln -sf /proc/1/fd/1 /var/log/php/mail.log
-RUN ln -sf /proc/1/fd/1 /var/log/php/pool.slow.log
-RUN ln -sf /proc/1/fd/1 /var/log/php/pool.access.log
-
-# nginx logs to stderr|stdout
-RUN ln -sf /proc/1/fd/2 /var/log/nginx/error.log
-RUN ln -sf /proc/1/fd/1 /var/log/nginx/access.log
+    /var/log/xdebug-profiler
 
 # permissions
 RUN chmod +x /usr/bin/crontab
-RUN chown -R www-data:www-data /var/log/php /usr/include
+RUN chown -R www-data:www-data /usr/include
 
 # remove not needed files.
 RUN rm /usr/local/etc/php-fpm.d/docker.conf
