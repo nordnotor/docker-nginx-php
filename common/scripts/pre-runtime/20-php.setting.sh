@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ## php.ini
-PHP_INI_CONF_PATH="${PHP_INI_DIR}/conf.d/zzz-docker.ini"
+ZZZ_PHP_INI_CONF_PATH=${ZZZ_PHP_INI_CONF_PATH:-${PHP_INI_DIR}/conf.d/zzz-docker.ini}
+ZZZ_WWW_PHP_FPM_CONF_PATH=${ZZZ_WWW_PHP_FPM_CONF_PATH:-/usr/local/etc/php-fpm.d/zzz-www-docker.conf}
 
 { \
     echo -e "\n; Override default config"; \
@@ -22,7 +23,7 @@ PHP_INI_CONF_PATH="${PHP_INI_DIR}/conf.d/zzz-docker.ini"
     echo "opcache.validate_timestamps = ${CONF_PHP_INI_OPCACHE_VALIDATE_TIMESTAMPS}"; \
     echo "opcache.max_accelerated_files = ${CONF_PHP_INI_OPCACHE_MAX_ACCELERATED_FILES}"; \
     echo "opcache.memory_consumption = ${CONF_PHP_INI_OPCACHE_MEMORY_CONSUMPTION}"; \
-} > ${PHP_INI_CONF_PATH};
+} > ${ZZZ_PHP_INI_CONF_PATH};
 
 if [[ -n ${CONF_PHP_INI_SENDMAIL_PATH} ]]; then
     echo "sendmail_path = \"${CONF_PHP_INI_SENDMAIL_PATH}\"" >>  ${PHP_INI_CONF_PATH};
@@ -57,5 +58,5 @@ fi
     echo "request_slowlog_timeout = ${CONF_PHP_FPM_WWW_REQUEST_SLOW_LOG_TIMEOUT}"; \
     echo "request_terminate_timeout = ${CONF_PHP_FPM_WWW_REQUEST_TERMINATE_TIMEOUT}"; \
     echo "clear_env = ${CONF_PHP_FPM_WWW_CLEAR_ENV}"; \
-} > /usr/local/etc/php-fpm.d/zzz-www-docker.conf
+} > ${ZZZ_WWW_PHP_FPM_CONF_PATH}
 

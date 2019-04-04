@@ -12,6 +12,9 @@ ENV MODE='prod' \
     SECRET_ENV='' \
     APP_FOLDER='/var/www/html'
 
+# tallyman
+ENV TALLYMAN_NAME="default"
+
 # nginx env
 ENV NGINX_HOST=_ \
     NGINX_PORT='80' \
@@ -176,8 +179,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     && chmod -R 770 $COMPOSER_HOME \
     && chown -R www-data:composer $COMPOSER_HOME
 
-# define by defaul php.ini production configuration
+# define by default php.ini production configuration
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+# define by default php.ini params which can do effect on docker build
+RUN { \
+    echo "memory_limit = ${CONF_PHP_INI_MEMORY_LIMIT}"; \
+} > $PHP_INI_DIR/conf.d/zzz-docker.ini;
 
 # copy files
 COPY $COMMON_ROOTFS_DIR/scripts/pre-runtime $SCRIPTS_BEFORE_SECRET_DIR
@@ -218,5 +226,8 @@ EXPOSE 80 443
 STOPSIGNAL SIGTERM
 
 WORKDIR $APP_FOLDER
+
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=120s \
+  CMD \bin\bash -c "tallyman $TALLYMAN_NAME healthcheck" || exit 1
 
 CMD ["docker-entrypoint", "supervisord", "-c", "/etc/supervisord.conf"]
