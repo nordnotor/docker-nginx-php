@@ -133,6 +133,66 @@ RUN curl -fsSL 'https://xcache.lighttpd.net/pub/Releases/3.2.0/xcache-3.2.0.tar.
 	&& rm -r /tmp/xcache
 ```
 
+### Mode
+
+To enable mode for local development you need define `MODE` and `MODE_XDEBUG` in container env.
+
+Example:
+```bash
+    MODE: "dev" - add groups :www-data to `APP_FOLDER` files and replase php.ini for development.
+    MODE_XDEBUG: 'on' - enable xdebug before start container
+```
+`Notice:` By default this options are disabled. Also, any other values will be considered as prod mode.
+
+### Cron
+
+You can add cron jobs by `crontab` in `dockerfile`.
+```dockerfile
+USER www-data
+RUN echo -e " \
+ * * * * *  php $APP_FOLDER/bin/console run > /proc/1/fd/1 2>/proc/1/fd/2 \n \
+\
+" | crontab -
+USER root
+```
+
+### Xdebug
+
+Xdebug configs by default:
+ - `idekey` is `PHPSTORM`
+ - `remote_port` is `9000`
+
+Enable
+```bash
+docker-php-ext-enable xdebug
+supervisorctl restart php
+
+```
+
+Disable
+```bash
+docker-php-ext-enable xdebug
+supervisorctl restart php
+```
+
+### Health check
+
+Default configuration for health check is:
+```dockerfile
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=120s \
+  CMD \bin\bash -c "tallyman $TALLYMAN_NAME healthcheck" || exit 1
+```
+
+`/usr/bin/healthcheck`
+```bash
+curl -f localhost
+```
+
+You can rewrite default health check by adding line in docker file:
+```dockerfile
+RUN echo 'curl --fail -s localhost/health_check.php' > healthcheck
+```
+
 # Image Variants
 
 ## Schema: `php:<php-version>-<fpm|cli>-<os-version>-<image-version>`

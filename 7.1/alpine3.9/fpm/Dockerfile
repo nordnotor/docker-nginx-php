@@ -58,6 +58,12 @@ ENV CONF_PHP_FPM_LOG_LEVEL='notice' \
     CONF_PHP_FPM_WWW_REQUEST_TERMINATE_TIMEOUT='60s' \
     CONF_PHP_FPM_WWW_CLEAR_ENV='no'
 
+# xdebug
+ENV CONF_PHP_XDEBUG_IDEKEY='PHPSTORM' \
+    CONF_PHP_XDEBUG_REMOTE_PORT='9000' \
+    CONF_PHP_XDEBUG_PROFILER_ENABLE=0 \
+    CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR='/var/log/xdebug-profiler' \
+
 # composer env
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME='/etc/composer' \
@@ -117,9 +123,10 @@ RUN apk add --no-cache \
     subversion \
     mercurial \
 	findutils \
+    binutils \
+    autoconf \
     openssl \
     openssh \
-    autoconf \
     libtool \
     patch \
     ssmtp \
@@ -208,10 +215,10 @@ RUN mkdir -p \
     $SCRIPTS_BEFORE_SECRET_DIR  \
     $SCRIPTS_AFTER_WAIT_RUNTIME_DIR  \
     $SCRIPTS_BEFORE_WAIT_RUNTIME_DIR  \
+    ${CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR} \
     /etc/cron/periodic \
     /etc/cron/crontabs \
-    /etc/cron/cronstamps \
-    /var/log/xdebug-profiler
+    /etc/cron/cronstamps
 
 # permissions
 RUN chmod +x /usr/bin/crontab
