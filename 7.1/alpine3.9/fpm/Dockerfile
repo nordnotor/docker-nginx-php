@@ -196,7 +196,7 @@ RUN { \
 
 # copy files
 COPY $COMMON_ROOTFS_DIR/scripts/pre-runtime $SCRIPTS_BEFORE_SECRET_DIR
-COPY $COMMON_ROOTFS_DIR/scripts/command/docker-* $COMMON_ROOTFS_DIR/scripts/docker-entrypoint /usr/bin/
+COPY $COMMON_ROOTFS_DIR/scripts/command/* $COMMON_ROOTFS_DIR/scripts/docker-entrypoint /usr/bin/
 
 COPY $COMMON_ROOTFS_DIR/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY $COMMON_ROOTFS_DIR/nginx/sites-enabled /etc/nginx/conf.d
