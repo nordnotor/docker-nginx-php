@@ -62,7 +62,7 @@ ENV CONF_PHP_FPM_LOG_LEVEL='notice' \
 ENV CONF_PHP_XDEBUG_IDEKEY='PHPSTORM' \
     CONF_PHP_XDEBUG_REMOTE_PORT='9000' \
     CONF_PHP_XDEBUG_PROFILER_ENABLE=0 \
-    CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR='/var/log/xdebug-profiler' \
+    CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR='/var/log/xdebug-profiler'
 
 # composer env
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
@@ -215,7 +215,7 @@ RUN mkdir -p \
     $SCRIPTS_BEFORE_SECRET_DIR  \
     $SCRIPTS_AFTER_WAIT_RUNTIME_DIR  \
     $SCRIPTS_BEFORE_WAIT_RUNTIME_DIR  \
-    ${CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR} \
+    $CONF_PHP_XDEBUG_PROFILER_OUTPUT_DIR \
     /etc/cron/periodic \
     /etc/cron/crontabs \
     /etc/cron/cronstamps
