@@ -175,7 +175,7 @@ RUN apk add --no-cache --virtual .ext-deps $PHPEXT_DEPS \
 
 # add user and groups
 RUN addgroup composer && usermod --append --groups www-data,nginx nginx
-RUN usermod --append --groups composer,nginx,www-data www-data && groupmod www-data
+RUN usermod --login www-data --shell /bin/sh--append --groups composer,nginx,www-data www-data && groupmod www-data
 
 # install composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
