@@ -235,6 +235,6 @@ STOPSIGNAL SIGTERM
 WORKDIR $APP_FOLDER
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=120s \
-  CMD \bin\bash -c "tallyman $TALLYMAN_NAME healthcheck" || exit 1
+  CMD ["\bin\bash", "-c", "tallyman $TALLYMAN_NAME healthcheck"]
 
 CMD ["docker-entrypoint", "supervisord", "-c", "/etc/supervisord.conf"]
