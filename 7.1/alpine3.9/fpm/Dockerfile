@@ -15,12 +15,6 @@ ENV MODE='prod' \
 # tallyman
 ENV TALLYMAN_NAME="default"
 
-# nginx env
-ENV NGINX_HOST=_ \
-    NGINX_PORT='80' \
-    NGINX_UNCHECK_ROBOTS='1' \
-    NGINX_ROOT=$APP_FOLDER
-
 # php env
 ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
     CONF_PHP_INI_MAX_EXECUTION_TIME='300' \
