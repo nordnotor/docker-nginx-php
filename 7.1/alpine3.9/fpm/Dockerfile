@@ -23,7 +23,7 @@ ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
     CONF_PHP_INI_POST_MAX_SIZE='50M' \
     CONF_PHP_INI_UPLOAD_MAX_FILESIZE='50M' \
     CONF_PHP_INI_TIMEZONE='Europe/Oslo' \
-    CONF_PHP_INI_ERROR_LOG='/dev/stderr' \
+    CONF_PHP_INI_ERROR_LOG='syslog' \
     CONF_PHP_INI_SESSION_SAVE_HANDLER='files' \
     CONF_PHP_INI_REALPATH_CACHE_SIZE='4096K' \
     CONF_PHP_INI_REALPATH_CACHE_TTL=600 \
@@ -36,7 +36,7 @@ ENV CONF_PHP_INI_MAX_INPUT_TIME='60' \
     CONF_PHP_INI_SENDMAIL_PATH=''
 
 ENV CONF_PHP_FPM_LOG_LEVEL='notice' \
-    CONF_PHP_FPM_ERROR_LOG='/dev/stderr' \
+    CONF_PHP_FPM_ERROR_LOG='syslog' \
     CONF_PHP_FPM_PROCESS_CONTROL_TIMEOUT='60s' \
     # www pool
     CONF_PHP_FPM_WWW_LISTEN='/var/run/php.sock' \
@@ -109,9 +109,8 @@ RUN apk add --no-cache --virtual .persistent-ext-deps \
 
 # install packages
 RUN apk add --no-cache \
-	supervisor=3.3.4-r1 \
     ca-certificates \
-    nginx=1.14.2-r0 \
+    nginx \
     busybox-extras \
     mysql-client \
     subversion \
@@ -135,7 +134,13 @@ RUN apk add --no-cache \
     unzip \
     mc \
     tar \
-    acl
+    acl \
+    rsyslog \
+    python3 \
+    py-pip
+
+RUN apk add rsyslog-mmpri --update-cache --repository https://alpine.archive.norse.digital/v3.9/main  --allow-untrusted
+RUN pip3 install supervisor
 
 # inslall and enable extensions
 RUN apk add --no-cache --virtual .ext-deps $PHPEXT_DEPS \
@@ -196,6 +201,8 @@ COPY $COMMON_ROOTFS_DIR/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY $COMMON_ROOTFS_DIR/nginx/sites-enabled /etc/nginx/conf.d
 
 COPY $COMMON_ROOTFS_DIR/supervisor/programs /etc/supervisor.programs
+
+COPY $COMMON_ROOTFS_DIR/rsyslog/rsyslog.conf /etc/rsyslog.conf
 COPY $COMMON_ROOTFS_DIR/supervisor/supervisord.conf /etc/supervisord.conf
 
 COPY $COMMON_ROOTFS_DIR/php/conf.d/docker-php-ext-xdebug.ini $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini
@@ -227,6 +234,14 @@ EXPOSE 80 443
 STOPSIGNAL SIGTERM
 
 WORKDIR $APP_FOLDER
+
+#WORKDIR /var/log/syslog
+#
+#RUN echo -e " \
+# * * * * *  php $APP_FOLDER/bin/magento cron:run > /proc/1/fd/1 2>/proc/1/fd/2 \n \
+# * * * * *  php $APP_FOLDER/bin/magento setup:cron:run > /proc/1/fd/1 2>/proc/1/fd/2 \n \
+#\
+#" | crontab -
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 --start-period=120s \
   CMD ["bash", "-c", "tallyman $TALLYMAN_NAME healthcheck"]

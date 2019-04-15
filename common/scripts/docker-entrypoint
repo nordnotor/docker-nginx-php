@@ -37,4 +37,6 @@ done
 # Run scripts after waiting...
 runScripts ${SCRIPTS_AFTER_WAIT_RUNTIME_DIR}
 
+crond -l 5
+
 exec "$@"
